@@ -1,20 +1,33 @@
 package app
 
-import "EWallet/internal/transport"
+import (
+	"EWallet/internal/config"
+	"EWallet/internal/transport"
+)
 
 type App struct {
-	s *transport.Server
+	cfg *config.Config
+	s   *transport.Server
 }
 
 func New() (*App, error) {
-	s, err := transport.New()
+	a := &App{}
+
+	cfg, err := config.New()
 	if err != nil {
 		return nil, err
 	}
 
-	return &App{
-		s: s,
-	}, nil
+	a.cfg = cfg
+
+	s, err := transport.New(a.cfg.Server)
+	if err != nil {
+		return nil, err
+	}
+
+	a.s = s
+
+	return a, nil
 }
 
 func (a *App) Run() error {

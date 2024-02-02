@@ -6,9 +6,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func handlersInit(e *echo.Echo) {
+func handlersInit(e *echo.Echo, defaultRoute string) {
 	e.GET("/", helloWorldHandler)
-	e.POST("/api/v1/wallet", walletCreate)
+	e.POST(defaultRoute, walletCreate)
 }
 
 func helloWorldHandler(c echo.Context) error {
