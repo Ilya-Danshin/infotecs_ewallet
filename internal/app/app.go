@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"EWallet/internal/config"
 	"EWallet/internal/database/walletRepository"
-	"EWallet/internal/transport"
+	"EWallet/internal/services/walletService"
+	"EWallet/internal/transport/echoServer"
 )
 
 type App struct {
 	cfg *config.Config
-	s   *transport.Server
+	s   *echoServer.Server
 }
 
 func New() (*App, error) {
@@ -35,20 +35,16 @@ func New() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Test case
-	uid, err := uuid.DefaultGenerator.NewV4()
 
-	err = repo.InsertWallet(context.Background(), uid, 100.0)
+	service, err := walletService.New(repo, a.cfg.Service)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := transport.New(a.cfg.Server)
+	a.s, err = echoServer.New(service, a.cfg.Server)
 	if err != nil {
 		return nil, err
 	}
-
-	a.s = s
 
 	return a, nil
 }
