@@ -39,7 +39,12 @@ func (s *Service) CreateWallet(ctx context.Context) (*models.Wallet, error) {
 }
 
 func (s *Service) GetBalance(ctx context.Context, id uuid.UUID) (*models.Wallet, error) {
-	return nil, nil
+	w, err := s.repo.SelectWallet(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return w, nil
 }
 
 func (s *Service) CreateTransaction(ctx context.Context, from, to uuid.UUID, amount float32) error {

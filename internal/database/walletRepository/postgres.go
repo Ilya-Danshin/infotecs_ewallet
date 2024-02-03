@@ -2,6 +2,7 @@ package walletRepository
 
 import (
 	"context"
+	"github.com/jackc/pgx/v4"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -32,8 +33,23 @@ func (db *Postgres) InsertWallet(ctx context.Context, walletId uuid.UUID, balanc
 	return nil
 }
 
+const selectWallet = `SELECT id, balance 
+						FROM wallet_balance 
+						WHERE id = $1`
+
 func (db *Postgres) SelectWallet(ctx context.Context, walletId uuid.UUID) (*models.Wallet, error) {
-	return nil, nil
+	res := &models.Wallet{}
+	err := db.conn.QueryRow(ctx, selectWallet, walletId).Scan(
+		&res.Id,
+		&res.Balance)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (db *Postgres) UpdateWalletBalance(ctx context.Context, walletId uuid.UUID, balance float32) error {
