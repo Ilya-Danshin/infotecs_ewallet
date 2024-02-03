@@ -2,10 +2,10 @@ package walletRepository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v4"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"EWallet/internal/models"
@@ -52,7 +52,36 @@ func (db *Postgres) SelectWallet(ctx context.Context, walletId uuid.UUID) (*mode
 	return res, nil
 }
 
-func (db *Postgres) UpdateWalletBalance(ctx context.Context, walletId uuid.UUID, balance float32) error {
+const walletFromUpdate = `UPDATE wallet_balance
+							SET balance=balance-$1
+							WHERE id=$2`
+
+const walletToUpdate = `UPDATE wallet_balance
+							SET balance=balance+$1
+							WHERE id=$2`
+
+func (db *Postgres) UpdateWalletBalance(ctx context.Context, from, to uuid.UUID, amount float32) error {
+	tx, err := db.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, walletFromUpdate, amount, from)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, walletToUpdate, amount, to)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
