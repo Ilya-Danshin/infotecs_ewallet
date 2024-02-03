@@ -9,12 +9,13 @@ import (
 	"EWallet/internal/config"
 	"EWallet/internal/database/walletRepository"
 	"EWallet/internal/services/walletService"
+	"EWallet/internal/transport"
 	"EWallet/internal/transport/echoServer"
 )
 
 type App struct {
 	cfg *config.Config
-	s   *echoServer.Server
+	s   transport.WalletTransport
 }
 
 func New() (*App, error) {

@@ -7,14 +7,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (s *Server) handlersInit(defaultRoute string) {
-	s.e.GET("/", s.helloWorldHandler)
-	s.e.POST(defaultRoute, s.walletCreate)
-	s.e.GET(defaultRoute+"/:walletId", s.walletGetBalance)
-}
+// TODO: Объединить все эндпоинты с walletId в группу, сделать мидлварьку с проверкой существования этого кошелька.
+// TODO: Если его нет => 404
+func (s *Server) handlersInit() {
+	walletGroup := s.e.Group(s.cfg.DefaultRoute)
+	walletGroup.POST("", s.walletCreate)
 
-func (s *Server) helloWorldHandler(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	walletIdGroup := walletGroup.Group("/:walletId", s.checkWalletMiddleware)
+	walletIdGroup.GET("", s.walletGetBalance)
+
 }
 
 func (s *Server) walletCreate(c echo.Context) error {
@@ -30,15 +31,12 @@ func (s *Server) walletGetBalance(c echo.Context) error {
 	uidStr := c.Param("walletId")
 	uid, err := uuid.FromString(uidStr)
 	if err != nil {
-		return c.String(http.StatusNotFound, "incorrect walletId")
+		return c.String(http.StatusBadRequest, "walletId is not an uuid")
 	}
 
 	w, err := s.service.GetBalance(c.Request().Context(), uid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
-	}
-	if w == nil {
-		return c.JSON(http.StatusNotFound, nil)
 	}
 
 	return c.JSON(http.StatusOK, &w)

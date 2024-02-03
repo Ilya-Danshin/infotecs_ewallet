@@ -23,7 +23,7 @@ func New(service services.WalletService, cfg config.Server) (*Server, error) {
 		cfg:     cfg,
 	}
 
-	s.handlersInit(cfg.DefaultRoute)
+	s.handlersInit()
 
 	return s, nil
 }
