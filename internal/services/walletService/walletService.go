@@ -47,6 +47,18 @@ func (s *Service) GetBalance(ctx context.Context, id uuid.UUID) (*models.Wallet,
 	return w, nil
 }
 
+func (s *Service) IsWalletExist(ctx context.Context, id uuid.UUID) bool {
+	w, err := s.repo.SelectWallet(ctx, id)
+	if err != nil {
+		return false
+	}
+	if w == nil {
+		return false
+	}
+
+	return true
+}
+
 func (s *Service) CreateTransaction(ctx context.Context, from, to uuid.UUID, amount float32) error {
 	return nil
 }

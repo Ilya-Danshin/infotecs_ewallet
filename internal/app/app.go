@@ -1,6 +1,7 @@
 package app
 
 import (
+	"EWallet/internal/transport"
 	"context"
 	"fmt"
 
@@ -14,7 +15,7 @@ import (
 
 type App struct {
 	cfg *config.Config
-	s   *echoServer.Server
+	s   transport.WalletTransport
 }
 
 func New() (*App, error) {
