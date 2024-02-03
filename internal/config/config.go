@@ -13,8 +13,17 @@ type Server struct {
 	DefaultRoute string `env:"WALLET_API_DEFAULT_ROUTE"`
 }
 
+type Database struct {
+	Host         string `env:"DB_HOST"`
+	Port         string `env:"DB_PORT"`
+	User         string `env:"DB_USER"`
+	Password     string `env:"DB_PASSWORD"`
+	DatabaseName string `env:"DB_NAME"`
+}
+
 type Config struct {
-	Server Server
+	Server   Server
+	Database Database
 }
 
 func New() (*Config, error) {
