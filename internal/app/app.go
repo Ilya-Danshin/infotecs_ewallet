@@ -1,7 +1,6 @@
 package app
 
 import (
-	"EWallet/internal/transport"
 	"context"
 	"fmt"
 
@@ -10,6 +9,7 @@ import (
 	"EWallet/internal/config"
 	"EWallet/internal/database/walletRepository"
 	"EWallet/internal/services/walletService"
+	"EWallet/internal/transport"
 	"EWallet/internal/transport/echoServer"
 )
 
