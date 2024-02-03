@@ -7,13 +7,13 @@ import (
 )
 
 type Wallet struct {
-	Id      uuid.UUID
-	Balance float32
+	Id      uuid.UUID `json:"id"`
+	Balance float32   `json:"balance"`
 }
 
 type Transaction struct {
-	Time   time.Time
-	From   uuid.UUID
-	To     uuid.UUID
-	Amount float32
+	Time   time.Time `json:"time"`
+	From   uuid.UUID `json:"from"`
+	To     uuid.UUID `json:"to"`
+	Amount float32   `json:"amount"`
 }

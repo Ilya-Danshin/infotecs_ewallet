@@ -1,11 +1,12 @@
 package walletService
 
 import (
-	"EWallet/internal/config"
 	"context"
+	"errors"
 
 	"github.com/gofrs/uuid"
 
+	"EWallet/internal/config"
 	"EWallet/internal/database"
 	"EWallet/internal/models"
 )
@@ -60,6 +61,29 @@ func (s *Service) IsWalletExist(ctx context.Context, id uuid.UUID) bool {
 }
 
 func (s *Service) CreateTransaction(ctx context.Context, from, to uuid.UUID, amount float32) error {
+	if amount < 0.0 {
+		return errors.New("amount less than 0")
+	}
+
+	if !s.IsWalletExist(ctx, to) {
+		return errors.New("\"to\" doesn't exist")
+	}
+
+	fromWallet, err := s.GetBalance(ctx, from)
+	if err != nil {
+		return err
+	}
+
+	if fromWallet.Balance < amount {
+		return errors.New("not enough money")
+	}
+
+	err = s.repo.UpdateWalletBalance(ctx, from, to, amount)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Добавить запись в бд об успешной операции
 	return nil
 }
 
