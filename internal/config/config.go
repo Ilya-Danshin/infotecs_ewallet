@@ -21,9 +21,14 @@ type Database struct {
 	DatabaseName string `env:"DB_NAME"`
 }
 
+type Service struct {
+	DefaultBalance float32 `env:"SERVICE_WALLET_DEFAULT_BALANCE"`
+}
+
 type Config struct {
 	Server   Server
 	Database Database
+	Service  Service
 }
 
 func New() (*Config, error) {

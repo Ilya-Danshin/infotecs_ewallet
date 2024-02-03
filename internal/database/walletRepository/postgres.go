@@ -18,11 +18,12 @@ func New(conn *pgxpool.Pool) (*Postgres, error) {
 	return &Postgres{conn: conn}, nil
 }
 
-func (db *Postgres) InsertWallet(ctx context.Context, walletId uuid.UUID, balance float32) error {
-	row, err := db.conn.Query(ctx,
-		`INSERT INTO wallet_balance(id, balance)
+const insertWallet = `INSERT INTO wallet_balance(id, balance)
 				VALUES ($1, $2) ON CONFLICT (id) DO UPDATE 
-				SET balance=excluded.balance`, walletId, balance)
+				SET balance=excluded.balance`
+
+func (db *Postgres) InsertWallet(ctx context.Context, walletId uuid.UUID, balance float32) error {
+	row, err := db.conn.Query(ctx, insertWallet, walletId, balance)
 	if err != nil {
 		return err
 	}
