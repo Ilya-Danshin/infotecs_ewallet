@@ -12,8 +12,8 @@ type Wallet struct {
 }
 
 type Transaction struct {
-	Time   time.Time `json:"time,omitempty"`
-	From   uuid.UUID `json:"from,omitempty"`
+	Time   time.Time `json:"time"`
+	From   uuid.UUID `json:"from"`
 	To     uuid.UUID `json:"to"`
 	Amount float32   `json:"amount"`
 }

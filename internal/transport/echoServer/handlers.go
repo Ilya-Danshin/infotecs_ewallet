@@ -42,11 +42,11 @@ func (s *Server) walletGetBalance(c echo.Context) error {
 }
 
 func (s *Server) walletTransaction(c echo.Context) error {
-	type TransactionReq struct {
+	type transactionReq struct {
 		To     uuid.UUID `json:"to"`
 		Amount float32   `json:"amount"`
 	}
-	t := TransactionReq{}
+	t := transactionReq{}
 
 	err := json.NewDecoder(c.Request().Body).Decode(&t)
 	if err != nil {
