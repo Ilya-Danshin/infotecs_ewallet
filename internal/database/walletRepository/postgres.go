@@ -102,7 +102,7 @@ func (db *Postgres) InsertTransaction(ctx context.Context, time time.Time, from 
 	return nil
 }
 
-const selectWalletTransactions = `SELECT "time", "from", "to", amount
+const selectWalletTransactions = `SELECT DISTINCT "time", "from", "to", amount
 									FROM transaction_history
 									WHERE "to"=$1 OR "from"=$1
 									ORDER BY "time"`
