@@ -66,6 +66,10 @@ func (s *Service) CreateTransaction(ctx context.Context, from, to uuid.UUID, amo
 		return errors.New("amount less than 0")
 	}
 
+	if from == to {
+		return errors.New("can't send money to yourself")
+	}
+
 	if !s.IsWalletExist(ctx, to) {
 		return errors.New("\"to\" doesn't exist")
 	}
