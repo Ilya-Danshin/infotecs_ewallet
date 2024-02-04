@@ -2,6 +2,7 @@ package echoServer
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/gofrs/uuid"
@@ -15,6 +16,7 @@ func (s *Server) handlersInit() {
 	walletIdGroup := walletGroup.Group("/:walletId", s.checkWalletMiddleware)
 	walletIdGroup.GET("", s.walletGetBalance)
 	walletIdGroup.POST("/send", s.walletTransaction)
+	walletIdGroup.GET("/history", s.walletGetTransactions)
 }
 
 func (s *Server) walletCreate(c echo.Context) error {
@@ -28,12 +30,12 @@ func (s *Server) walletCreate(c echo.Context) error {
 
 func (s *Server) walletGetBalance(c echo.Context) error {
 	uidStr := c.Param("walletId")
-	uid, err := uuid.FromString(uidStr)
+	uid, err := getUUIDFromString(uidStr)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "walletId is not an uuid")
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	w, err := s.service.GetBalance(c.Request().Context(), uid)
+	w, err := s.service.GetBalance(c.Request().Context(), *uid)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
@@ -54,15 +56,39 @@ func (s *Server) walletTransaction(c echo.Context) error {
 	}
 
 	uidStr := c.Param("walletId")
-	from, err := uuid.FromString(uidStr)
+	from, err := getUUIDFromString(uidStr)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "walletId is not an uuid")
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	err = s.service.CreateTransaction(c.Request().Context(), from, t.To, t.Amount)
+	err = s.service.CreateTransaction(c.Request().Context(), *from, t.To, t.Amount)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, nil)
 	}
 
 	return c.JSON(http.StatusOK, nil)
+}
+
+func (s *Server) walletGetTransactions(c echo.Context) error {
+	uidStr := c.Param("walletId")
+	uid, err := getUUIDFromString(uidStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	transactions, err := s.service.GetHistory(c.Request().Context(), *uid)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return c.JSON(http.StatusOK, transactions)
+}
+
+func getUUIDFromString(u string) (*uuid.UUID, error) {
+	uid, err := uuid.FromString(u)
+	if err != nil {
+		return nil, errors.New("walletId is not an uuid")
+	}
+
+	return &uid, nil
 }

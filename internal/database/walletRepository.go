@@ -15,6 +15,6 @@ type WalletRepository interface {
 	UpdateWalletBalance(ctx context.Context, from, to uuid.UUID, amount float32) error
 	DeleteWallet(ctx context.Context, walletId uuid.UUID) error
 
-	InsertTransaction(ctx context.Context, time time.Time, from uuid.UUID, to uuid.UUID, money float32) error
+	InsertTransaction(ctx context.Context, time time.Time, from uuid.UUID, to uuid.UUID, amount float32) error
 	SelectTransactionsByWallet(ctx context.Context, walletId uuid.UUID) ([]*models.Transaction, error)
 }
