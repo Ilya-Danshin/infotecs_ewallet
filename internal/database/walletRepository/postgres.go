@@ -89,10 +89,47 @@ func (db *Postgres) DeleteWallet(ctx context.Context, walletId uuid.UUID) error 
 	return nil
 }
 
-func (db *Postgres) InsertTransaction(ctx context.Context, time time.Time, from uuid.UUID, to uuid.UUID, money float32) error {
+const insertTransaction = `INSERT INTO transaction_history(time, "from", "to", amount) 
+							VALUES ($1, $2, $3, $4)`
+
+func (db *Postgres) InsertTransaction(ctx context.Context, time time.Time, from uuid.UUID, to uuid.UUID, amount float32) error {
+	row, err := db.conn.Query(ctx, insertTransaction, time, from, to, amount)
+	if err != nil {
+		return err
+	}
+	defer row.Close()
+
 	return nil
 }
 
+const selectWalletTransactions = `SELECT "time", "from", "to", amount
+									FROM transaction_history
+									WHERE "to"=$1 OR "from"=$1
+									ORDER BY "time"`
+
 func (db *Postgres) SelectTransactionsByWallet(ctx context.Context, walletId uuid.UUID) ([]*models.Transaction, error) {
-	return nil, nil
+	rows, err := db.conn.Query(ctx, selectWalletTransactions, walletId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var res []*models.Transaction
+
+	for rows.Next() {
+		var r models.Transaction
+
+		err = rows.Scan(&r.Time,
+			&r.From,
+			&r.To,
+			&r.Amount,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &r)
+	}
+
+	return res, nil
 }

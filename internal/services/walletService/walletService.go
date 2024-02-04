@@ -3,6 +3,7 @@ package walletService
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -83,10 +84,28 @@ func (s *Service) CreateTransaction(ctx context.Context, from, to uuid.UUID, amo
 		return err
 	}
 
-	// TODO: Добавить запись в бд об успешной операции
+	err = s.logTransaction(ctx, from, to, amount)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (s *Service) GetHistory(ctx context.Context, id uuid.UUID) ([]*models.Transaction, error) {
-	return nil, nil
+	t, err := s.repo.SelectTransactionsByWallet(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
+func (s *Service) logTransaction(ctx context.Context, from, to uuid.UUID, amount float32) error {
+	err := s.repo.InsertTransaction(ctx, time.Now(), from, to, amount)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -6,7 +6,7 @@ CREATE TABLE wallet_balance (
 );
 
 CREATE TABLE transaction_history (
-    "time" time,
+    "time" timestamp,
     "from" uuid,
     "to" uuid,
     amount float8,
